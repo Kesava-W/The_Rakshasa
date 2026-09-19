@@ -226,7 +226,7 @@ footer{
      class="cover-image">
 
 <div class="start-reading">
-<a href="chapter.html?file=chapter1">
+<a id="startReading" href="chapter.html?file=chapter1">
 Start Reading
 </a>
 </div>
@@ -332,21 +332,7 @@ Faith
 
 <h2>Chapters</h2>
 
-<div class="chapter-list">
-
-<a href="chapter.html?file=chapter1">Chapter 1 – Questions About Rakshasas</a>
-<a href="chapter.html?file=chapter2">Chapter 2 – Leaving Dwaraka</a>
-<a href="chapter.html?file=chapter3">Chapter 3 – The Night Shift</a>
-<a href="chapter.html?file=chapter4">Chapter 4 – The First Date</a>
-<a href="chapter.html?file=chapter5">Chapter 5 – The Factory Problem</a>
-<a href="chapter.html?file=chapter6">Chapter 6 – The Revelation</a>
-<a href="chapter.html?file=chapter7">Chapter 7 – The Fear</a>
-<a href="chapter.html?file=chapter8">Chapter 8 – The Factory Massacre</a>
-<a href="chapter.html?file=chapter9">Chapter 9 – The Aftermath</a>
-<a href="chapter.html?file=chapter9_5">Chapter 9.5 – The Scholar and the Rakshasa</a>
-<a href="chapter.html?file=chapter10">Chapter 10 – The Burden That Was Never There</a>
-
-</div>
+<div class="chapter-list" id="chapterList"></div>
 
 </section>
 
@@ -355,6 +341,56 @@ Faith
 <footer>
 © 2026 Kesava Nittala
 </footer>
+
+<script>
+
+const list = document.getElementById("chapterList");
+
+fetch("chapters.json")
+.then(response => {
+
+    if(!response.ok){
+        throw new Error("Chapter list not found");
+    }
+
+    return response.json();
+
+})
+.then(chapters => {
+
+    const start = document.getElementById("startReading");
+
+    if(start && chapters.length){
+        start.href = `chapter.html?file=${encodeURIComponent(chapters[0].file)}`;
+    }
+
+    chapters.forEach(c => {
+
+        const a = document.createElement("a");
+        a.href = `chapter.html?file=${encodeURIComponent(c.file)}`;
+
+        const parts = c.title.split(" – ");
+        a.appendChild(document.createTextNode(parts[0]));
+
+        if(parts.length > 1){
+            const span = document.createElement("span");
+            span.className = "location";
+            span.textContent = " – " + parts.slice(1).join(" – ");
+            a.appendChild(span);
+        }
+
+        list.appendChild(a);
+
+    });
+
+})
+.catch(() => {
+
+    list.textContent = "Chapters could not be loaded.";
+
+});
+
+</script>
 
 <script src="feedback.js" data-story="The Rakshasa"></script>
 

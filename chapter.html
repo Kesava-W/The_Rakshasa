@@ -126,11 +126,43 @@ Next →
 
 const params = new URLSearchParams(window.location.search);
 
-const file = params.get("file") || "chapter1";
-
 const content = document.getElementById("content");
 
-fetch(`chapters/${file}.md`)
+fetch("chapters.json")
+.then(response => {
+
+    if(!response.ok){
+        throw new Error("Chapter list not found");
+    }
+
+    return response.json();
+
+})
+.then(chapters => {
+
+    const chapterOrder = chapters.map(c => c.file);
+
+    const file = params.get("file") || chapterOrder[0];
+
+    const currentIndex = chapterOrder.indexOf(file);
+
+    if(currentIndex > 0){
+        document.getElementById("prevBtn").href =
+        `chapter.html?file=${encodeURIComponent(chapterOrder[currentIndex-1])}`;
+    }else{
+        document.getElementById("prevBtn").style.visibility="hidden";
+    }
+
+    if(currentIndex > -1 && currentIndex < chapterOrder.length-1){
+        document.getElementById("nextBtn").href =
+        `chapter.html?file=${encodeURIComponent(chapterOrder[currentIndex+1])}`;
+    }else{
+        document.getElementById("nextBtn").style.visibility="hidden";
+    }
+
+    return fetch(`chapters/${encodeURIComponent(file)}.md`);
+
+})
 .then(response => {
 
     if(!response.ok){
@@ -152,36 +184,6 @@ fetch(`chapters/${file}.md`)
     `;
 
 });
-
-const chapterOrder = [
-"chapter1",
-"chapter2",
-"chapter3",
-"chapter4",
-"chapter5",
-"chapter6",
-"chapter7",
-"chapter8",
-"chapter9",
-"chapter9_5",
-"chapter10"
-];
-
-const currentIndex = chapterOrder.indexOf(file);
-
-if(currentIndex > 0){
-    document.getElementById("prevBtn").href =
-    `chapter.html?file=${chapterOrder[currentIndex-1]}`;
-}else{
-    document.getElementById("prevBtn").style.visibility="hidden";
-}
-
-if(currentIndex < chapterOrder.length-1){
-    document.getElementById("nextBtn").href =
-    `chapter.html?file=${chapterOrder[currentIndex+1]}`;
-}else{
-    document.getElementById("nextBtn").style.visibility="hidden";
-}
 
 window.addEventListener("scroll", () => {
 
